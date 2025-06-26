@@ -175,3 +175,41 @@ Project maintained by - [Kunj Shah] - [kunjkshah05@gmail.com]
 ## License
 
 This project is licensed under the MIT License - see the `LICENSE.md` file for details.
+
+## Tailwind CSS Implementation Guide
+
+This website uses Tailwind CSS for styling, combined with some custom CSS. Here's how to maintain and update the site:
+
+### File Structure
+- `index.html` - Main HTML file with Tailwind utility classes
+- `styles.css` - Contains only custom styles that complement Tailwind
+- `tailwind.config.js` - Configuration for Tailwind CSS
+- `script.js` - JavaScript functionality
+- `tailwind-test.html` - Test file to verify Tailwind is working
+
+### How to Use Tailwind CSS
+1. **Add styles directly in HTML**: Use Tailwind's utility classes in your HTML elements
+   ```html
+   <div class="bg-blue-500 text-white p-4 rounded shadow-md hover:bg-blue-600">
+     This is styled with Tailwind
+   </div>
+   ```
+
+2. **Custom styles**: For complex components or repeated patterns, use the custom CSS classes in `styles.css`
+
+3. **Extending Tailwind**: Add custom colors, fonts, or animations in the `tailwind.config.js` file
+
+### Troubleshooting Tailwind CSS
+If Tailwind CSS is not working:
+1. Open `tailwind-test.html` in a browser to check if Tailwind is loading properly
+2. Ensure your HTML has proper Tailwind classes
+3. Check for any conflicts between custom CSS and Tailwind
+4. Verify the Tailwind CDN is accessible
+
+### Best Practices
+- Use Tailwind classes for layout, spacing, colors, and typography
+- Keep custom CSS minimal and only for complex components
+- Use responsive prefixes (sm:, md:, lg:, xl:) for responsive design
+- Group related utility classes for readability
+
+---

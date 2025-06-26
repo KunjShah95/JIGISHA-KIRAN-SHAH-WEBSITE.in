@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailwind CSS Test Page</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <script src="tailwind.config.js"></script>
+</head>
+
+<body class="bg-gray-100 p-8 min-h-screen flex flex-col items-center justify-center">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl my-8">
+        <div class="md:flex">
+            <div class="p-8">
+                <div class="uppercase tracking-wide text-sm text-primary-600 font-semibold">Tailwind CSS Test</div>
+                <h1 class="block mt-1 text-lg leading-tight font-medium text-black">If you can see this page styled
+                    properly, Tailwind CSS is working!</h1>
+                <p class="mt-2 text-gray-500">This test page confirms that Tailwind CSS is properly loaded and
+                    functioning on your website.</p>
+
+                <div class="mt-6 space-y-4">
+                    <h2 class="text-lg font-semibold">Test Elements:</h2>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button class="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">
+                            Primary Button
+                        </button>
+                        <button class="bg-secondary-500 hover:bg-secondary-600 text-white font-bold py-2 px-4 rounded">
+                            Secondary Button
+                        </button>
+                        <button class="bg-accent-500 hover:bg-accent-600 text-white font-bold py-2 px-4 rounded">
+                            Accent Button
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-primary-100 p-4 rounded-lg">
+                            <p class="text-primary-800">Primary Background</p>
+                        </div>
+                        <div class="bg-secondary-100 p-4 rounded-lg">
+                            <p class="text-secondary-800">Secondary Background</p>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="text-gray-800">Gray Background</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col space-y-2">
+                        <p class="font-inter text-lg">Inter Font</p>
+                        <p class="font-playfair text-lg">Playfair Display Font</p>
+                    </div>
+
+                    <div>
+                        <p class="text-lg mb-2">Animations:</p>
+                        <div class="flex flex-wrap gap-4">
+                            <div class="animate-fade-in-up bg-blue-500 text-white p-3 rounded">Fade In Up</div>
+                            <div class="animate-fade-in-down bg-green-500 text-white p-3 rounded">Fade In Down</div>
+                            <div class="animate-slide-in-right bg-purple-500 text-white p-3 rounded">Slide In Right
+                            </div>
+                            <div class="animate-pulse-slow bg-red-500 text-white p-3 rounded">Pulse Slow</div>
+                            <div class="animate-float bg-yellow-500 text-white p-3 rounded">Float</div>
+                            <div class="animate-bounce-gentle bg-pink-500 text-white p-3 rounded">Bounce Gentle</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <a href="index.html" class="text-primary-600 hover:text-primary-800 font-medium">← Back to Main
+                        Website</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
