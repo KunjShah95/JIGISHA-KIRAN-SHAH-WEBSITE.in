@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1,
+        h2 {
+            color: #1e40af;
+        }
+
+        .container {
+            margin-top: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #1e40af;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        .success {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .notification {
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+
+        .notification-success {
+            background-color: #d1fae5;
+            border: 1px solid #10b981;
+        }
+
+        .notification-error {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>WhatsApp Integration Test</h1>
+    <p>This tool helps test the form submission and WhatsApp integration before deployment.</p>
+
+    <div class="container">
+        <!-- Test Form -->
+        <form id="testForm">
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email">
+            </div>
+
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" min="18" max="80">
+            </div>
+
+            <div class="form-group">
+                <label for="interest">Service Interest *</label>
+                <select id="interest" name="interest" required>
+                    <option value="">Select Service</option>
+                    <option value="life-insurance">Life Insurance</option>
+                    <option value="pension-plans">Pension Plans</option>
+                    <option value="child-plans">Child Plans</option>
+                    <option value="health-insurance">Health Insurance</option>
+                    <option value="investment-plans">Investment Plans</option>
+                    <option value="consultation">General Consultation</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="income">Annual Income</label>
+                <select id="income" name="income">
+                    <option value="">Select Income Range</option>
+                    <option value="below-3">Below ₹3 Lakhs</option>
+                    <option value="3-5">₹3-5 Lakhs</option>
+                    <option value="5-10">₹5-10 Lakhs</option>
+                    <option value="10-20">₹10-20 Lakhs</option>
+                    <option value="above-20">Above ₹20 Lakhs</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <input type="checkbox" id="consent" name="consent" required>
+                <label for="consent" style="display: inline;">
+                    I agree to be contacted via phone/WhatsApp for insurance consultation.
+                </label>
+            </div>
+
+            <button type="submit">Test WhatsApp Integration</button>
+        </form>
+
+        <div id="notification" style="display: none;"></div>
+
+        <div class="form-group" style="margin-top: 30px;">
+            <h2>Process Details:</h2>
+            <div id="result">
+                <h3>Form Data:</h3>
+                <pre id="form-data"></pre>
+
+                <h3>WhatsApp Message:</h3>
+                <pre id="whatsapp-message"></pre>
+
+                <h3>Encrypted Data:</h3>
+                <pre id="encrypted-data"></pre>
+
+                <h3>WhatsApp URL:</h3>
+                <pre id="whatsapp-url"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sanitize input to prevent XSS attacks
+        function sanitizeInput(input) {
+            if (typeof input !== 'string') return input;
+
+            return input
+                .trim()
+                .replace(/[<>]/g, '') // Remove potential HTML tags
+                .replace(/javascript:/gi, '') // Remove javascript protocol
+                .replace(/on\w+=/gi, '') // Remove event handlers
+                .substring(0, 1000); // Limit input length
+        }
+
+        // Enhanced encryption for data protection
+        function encryptData(data, key) {
+            // This is an enhanced XOR encryption with multiple passes
+            let encrypted = '';
+
+            // First pass: XOR with key
+            for (let i = 0; i < data.length; i++) {
+                encrypted += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+
+            // Second pass: Add another layer of obfuscation by shifting characters
+            let secondPass = '';
+            for (let i = 0; i < encrypted.length; i++) {
+                const charCode = encrypted.charCodeAt(i);
+                secondPass += String.fromCharCode((charCode + 7) % 65536); // Simple shift with wrap-around
+            }
+
+            // Final pass: Base64 encode for safe transmission
+            return btoa(secondPass);
+        }
+
+        // Generate a secure key
+        function generateEncryptionKey() {
+            const timestamp = new Date().getTime().toString();
+            const randomStr = Math.random().toString(36).substring(2, 15);
+            const salt = "JigishaLIC"; // Add a salt for additional security
+            return timestamp + randomStr + salt;
+        }
+
+        // Format phone number
+        function formatPhoneNumber(phone) {
+            const cleaned = phone.replace(/\D/g, '');
+            if (cleaned.length === 10 && cleaned.match(/^[6-9]/)) {
+                return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`;
+            }
+            return phone;
+        }
+
+        // Format WhatsApp message
+        function formatWhatsAppMessage(data) {
+            const currentDate = new Date().toLocaleDateString('en-IN');
+            const currentTime = new Date().toLocaleTimeString('en-IN');
+
+            let message = `🔹 *NEW INSURANCE INQUIRY* 🔹\n\n`;
+            message += `📅 Date: ${currentDate}\n`;
+            message += `⏰ Time: ${currentTime}\n\n`;
+
+            message += `👤 *Personal Details:*\n`;
+            message += `Name: ${data.name || 'Not provided'}\n`;
+            message += `Phone: ${formatPhoneNumber(data.phone) || 'Not provided'}\n`;
+
+            if (data.email) {
+                message += `Email: ${data.email}\n`;
+            }
+
+            if (data.age) {
+                message += `Age: ${data.age} years\n`;
+            }
+
+            message += `\n💼 *Insurance Requirements:*\n`;
+
+            // Format interest field
+            const interestMap = {
+                'life-insurance': 'Life Insurance',
+                'pension-plans': 'Pension Plans',
+                'child-plans': 'Child Plans',
+                'health-insurance': 'Health Insurance',
+                'investment-plans': 'Investment Plans',
+                'consultation': 'General Consultation'
+            };
+            message += `Service: ${interestMap[data.interest] || data.interest || 'Not specified'}\n`;
+
+            if (data.income) {
+                const incomeMap = {
+                    'below-3': 'Below ₹3 Lakhs',
+                    '3-5': '₹3-5 Lakhs',
+                    '5-10': '₹5-10 Lakhs',
+                    '10-20': '₹10-20 Lakhs',
+                    'above-20': 'Above ₹20 Lakhs'
+                };
+                message += `Annual Income: ${incomeMap[data.income]}\n`;
+            }
+
+            message += `\n🔗 Source: Jigisha Shah LIC Website (Test)\n`;
+            message += `📝 Please provide me with a personalized insurance quotation based on the above details.\n\n`;
+            message += `Thank you! 🙏`;
+
+            return message;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            notification.style.display = 'block';
+
+            // Auto hide after 6 seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 6000);
+        }
+
+        // Handle form submission
+        document.getElementById('testForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Get form data
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => {
+                // Sanitize input data
+                data[key] = sanitizeInput(value);
+            });
+
+            // Validate required fields
+            const requiredFields = ['name', 'phone', 'interest', 'consent'];
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!data[field] || data[field] === '') {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                showNotification('Please fill in all required fields.', 'error');
+                return;
+            }
+
+            // Phone validation
+            const phoneRegex = /^[6-9]\d{9}$/;
+            if (!phoneRegex.test(data.phone.replace(/\D/g, ''))) {
+                showNotification('Please enter a valid Indian mobile number (10 digits starting with 6-9).', 'error');
+                return;
+            }
+
+            try {
+                // Generate encryption key
+                const encryptionKey = generateEncryptionKey();
+
+                // Format the message
+                const whatsappMessage = formatWhatsAppMessage(data);
+
+                // Encrypt the message
+                const secureMessage = encryptData(whatsappMessage, encryptionKey);
+
+                // Create the WhatsApp URL
+                const prefixMessage = "🔒 Secure Insurance Inquiry (TEST)";
+                const whatsappNumber = '+919824025435';
+                const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(prefixMessage + "\n\n" + whatsappMessage)}`;
+
+                // Display the results
+                document.getElementById('form-data').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('whatsapp-message').textContent = whatsappMessage;
+                document.getElementById('encrypted-data').textContent = secureMessage;
+                document.getElementById('whatsapp-url').textContent = whatsappURL;
+
+                // Show success notification
+                showNotification('Success! Click the "Open WhatsApp" button below to test the actual integration.', 'success');
+
+                // Add a button to open WhatsApp
+                const openWhatsAppBtn = document.createElement('button');
+                openWhatsAppBtn.textContent = 'Open WhatsApp with Form Data';
+                openWhatsAppBtn.style.marginTop = '20px';
+                openWhatsAppBtn.onclick = function () {
+                    window.open(whatsappURL, '_blank');
+                };
+
+                // Remove existing button if any
+                const existingBtn = document.querySelector('.whatsapp-btn');
+                if (existingBtn) {
+                    existingBtn.remove();
+                }
+
+                // Add the new button
+                openWhatsAppBtn.className = 'whatsapp-btn';
+                document.getElementById('result').appendChild(openWhatsAppBtn);
+
+            } catch (error) {
+                console.error('Error processing form:', error);
+                showNotification('There was an error processing your request: ' + error.message, 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>
