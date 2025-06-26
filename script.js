@@ -109,16 +109,18 @@ document.addEventListener('DOMContentLoaded', function () {
         contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // Get form data
+            // Get form data with sanitization
             const formData = new FormData(this);
             const data = {};
             formData.forEach((value, key) => {
-                data[key] = value;
+                // Sanitize input data
+                data[key] = sanitizeInput(value);
             });
 
             // Validate required fields
             const requiredFields = ['name', 'phone', 'interest', 'consent'];
             let isValid = true;
+            let firstErrorField = null;
 
             requiredFields.forEach(field => {
                 const input = this.querySelector(`[name="${field}"]`);
@@ -126,61 +128,103 @@ document.addEventListener('DOMContentLoaded', function () {
                     isValid = false;
                     input.style.borderColor = '#ef4444';
                     input.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+                    input.setAttribute('aria-invalid', 'true');
+                    if (!firstErrorField) firstErrorField = input;
                 } else {
                     input.style.borderColor = '#10b981';
                     input.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+                    input.setAttribute('aria-invalid', 'false');
                 }
             });
 
             if (!isValid) {
                 showNotification('Please fill in all required fields.', 'error');
+                if (firstErrorField) firstErrorField.focus();
                 return;
             }
 
-            // Phone number validation
+            // Enhanced phone number validation
             const phoneRegex = /^[6-9]\d{9}$/;
-            if (!phoneRegex.test(data.phone)) {
-                showNotification('Please enter a valid Indian mobile number.', 'error');
+            if (!phoneRegex.test(data.phone.replace(/\D/g, ''))) {
+                const phoneInput = this.querySelector('[name="phone"]');
+                phoneInput.style.borderColor = '#ef4444';
+                phoneInput.focus();
+                showNotification('Please enter a valid Indian mobile number (10 digits starting with 6-9).', 'error');
                 return;
             }
 
             // Email validation (if provided)
-            if (data.email) {
+            if (data.email && data.email.trim() !== '') {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(data.email)) {
+                    const emailInput = this.querySelector('[name="email"]');
+                    emailInput.style.borderColor = '#ef4444';
+                    emailInput.focus();
                     showNotification('Please enter a valid email address.', 'error');
                     return;
                 }
             }
+
+            // Age validation (if provided)
+            if (data.age && (isNaN(data.age) || data.age < 18 || data.age > 100)) {
+                const ageInput = this.querySelector('[name="age"]');
+                ageInput.style.borderColor = '#ef4444';
+                ageInput.focus();
+                showNotification('Please enter a valid age between 18 and 100.', 'error');
+                return;
+            }
+
             // Submit button loading state
             const submitBtn = this.querySelector('.form-submit');
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting to WhatsApp...';
-            submitBtn.disabled = true;            // Format WhatsApp message with user details
+
+            // Check rate limiting
+            if (!checkRateLimit()) {
+                showNotification('Too many submission attempts. Please wait a minute before trying again.', 'warning');
+                return;
+            }
+
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Redirecting to WhatsApp...';
+            submitBtn.disabled = true;
+            submitBtn.setAttribute('aria-busy', 'true');
+
+            // Format WhatsApp message with user details
             setTimeout(() => {
-                const whatsappMessage = formatWhatsAppMessage(data);
-                const whatsappNumber = '+919824025432'; // Your WhatsApp number
-                const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+                try {
+                    const whatsappMessage = formatWhatsAppMessage(data);
+                    const whatsappNumber = '+919824025432';
+                    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
-                // Show success message and redirect
-                showNotification('Redirecting you to WhatsApp with your details...', 'success');
+                    // Show success message and redirect
+                    showNotification('Redirecting you to WhatsApp with your details...', 'success');
 
-                // Reset form and button
-                this.reset();
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+                    // Reset form and button
+                    this.reset();
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    submitBtn.setAttribute('aria-busy', 'false');
 
-                // Clear field styling
-                const inputs = this.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => {
-                    input.style.borderColor = '';
-                    input.style.boxShadow = '';
-                });
+                    // Clear field styling
+                    const inputs = this.querySelectorAll('input, select, textarea');
+                    inputs.forEach(input => {
+                        input.style.borderColor = '';
+                        input.style.boxShadow = '';
+                        input.removeAttribute('aria-invalid');
+                    });
 
-                // Redirect to WhatsApp after a short delay
-                setTimeout(() => {
-                    window.open(whatsappURL, '_blank');
-                }, 1000);
+                    // Redirect to WhatsApp after a short delay
+                    setTimeout(() => {
+                        window.open(whatsappURL, '_blank');
+                    }, 1000);
+                } catch (error) {
+                    console.error('Error processing form:', error);
+                    showNotification('There was an error processing your request. Please try again or call directly.', 'error');
+
+                    // Reset button state
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    submitBtn.setAttribute('aria-busy', 'false');
+                }
             }, 2000);
         });
     }
@@ -280,9 +324,27 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+// Performance and Error Monitoring
+window.addEventListener('error', function (event) {
+    console.error('JavaScript Error:', event.error);
+    // You can implement error reporting here
+});
+
 // Utility Functions
 
-// Show notification
+// Sanitize input to prevent XSS attacks
+function sanitizeInput(input) {
+    if (typeof input !== 'string') return input;
+
+    return input
+        .trim()
+        .replace(/[<>]/g, '') // Remove potential HTML tags
+        .replace(/javascript:/gi, '') // Remove javascript protocol
+        .replace(/on\w+=/gi, '') // Remove event handlers
+        .substring(0, 1000); // Limit input length
+}
+
+// Enhanced notification system
 function showNotification(message, type = 'info') {
     // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.notification');
@@ -290,11 +352,21 @@ function showNotification(message, type = 'info') {
 
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
+    notification.setAttribute('role', 'alert');
+    notification.setAttribute('aria-live', 'polite');
+
+    const colors = {
+        error: '#ef4444',
+        success: '#10b981',
+        info: '#3b82f6',
+        warning: '#f59e0b'
+    };
+
     notification.style.cssText = `
         position: fixed;
         top: 100px;
         right: 20px;
-        background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#3b82f6'};
+        background: ${colors[type] || colors.info};
         color: white;
         padding: 1rem 1.5rem;
         border-radius: 0.5rem;
@@ -304,9 +376,33 @@ function showNotification(message, type = 'info') {
         transform: translateX(100%);
         transition: transform 0.3s ease;
         font-weight: 500;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        border-left: 4px solid rgba(255, 255, 255, 0.3);
     `;
 
-    notification.textContent = message;
+    // Add close button
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style.cssText = `
+        float: right;
+        margin-left: 10px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    `;
+    closeBtn.setAttribute('aria-label', 'Close notification');
+    closeBtn.onclick = () => closeNotification(notification);
+
+    const messageSpan = document.createElement('span');
+    messageSpan.textContent = message;
+
+    notification.appendChild(closeBtn);
+    notification.appendChild(messageSpan);
     document.body.appendChild(notification);
 
     // Animate in
@@ -314,15 +410,21 @@ function showNotification(message, type = 'info') {
         notification.style.transform = 'translateX(0)';
     }, 100);
 
-    // Auto remove after 5 seconds
+    // Auto remove after 6 seconds (increased for better UX)
     setTimeout(() => {
+        closeNotification(notification);
+    }, 6000);
+}
+
+function closeNotification(notification) {
+    if (notification.parentNode) {
         notification.style.transform = 'translateX(100%)';
         setTimeout(() => {
             if (notification.parentNode) {
-                notification.remove();
+                notification.parentNode.removeChild(notification);
             }
         }, 300);
-    }, 5000);
+    }
 }
 
 // Animate numbers (for statistics)
@@ -350,25 +452,75 @@ function animateNumber(element) {
     }, 20);
 }
 
-// Format phone number for display
+// Enhanced lazy loading for future image implementations
+function initializeLazyLoading() {
+    const lazyImages = document.querySelectorAll('img[data-src]');
+
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                    observer.unobserve(img);
+
+                    img.onload = () => {
+                        img.classList.add('loaded');
+                    };
+                }
+            });
+        }, {
+            rootMargin: '50px 0px',
+            threshold: 0.01
+        });
+
+        lazyImages.forEach(img => imageObserver.observe(img));
+    } else {
+        // Fallback for older browsers
+        lazyImages.forEach(img => {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+        });
+    }
+}
+
+// Initialize lazy loading
+document.addEventListener('DOMContentLoaded', initializeLazyLoading);
+
+// Rate limiting for form submissions
+let formSubmissionCount = 0;
+const MAX_SUBMISSIONS_PER_MINUTE = 3;
+
+function checkRateLimit() {
+    formSubmissionCount++;
+    setTimeout(() => {
+        formSubmissionCount--;
+    }, 60000); // Reset after 1 minute
+
+    return formSubmissionCount <= MAX_SUBMISSIONS_PER_MINUTE;
+}
+
+// Enhanced phone number formatting
 function formatPhoneNumber(phone) {
     const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length === 10) {
+    if (cleaned.length === 10 && cleaned.match(/^[6-9]/)) {
         return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`;
     }
     return phone;
 }
 
-// Validate email
+// Validate email with enhanced regex
 function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
     return emailRegex.test(email);
 }
 
-// Validate Indian mobile number
+// Validate Indian mobile number with enhanced checking
 function isValidIndianMobile(phone) {
+    const cleaned = phone.replace(/\D/g, '');
     const phoneRegex = /^[6-9]\d{9}$/;
-    return phoneRegex.test(phone);
+    return phoneRegex.test(cleaned);
 }
 
 // Get user's preferred contact time
@@ -380,29 +532,12 @@ function getContactTimePreference() {
     return 'any time';
 }
 
-// Feature detection
+// Feature detection for WebP support
 function supportsWebP() {
     const canvas = document.createElement('canvas');
     canvas.width = 1;
     canvas.height = 1;
     return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
-}
-
-// Lazy loading for images (if needed in future)
-function lazyLoadImages() {
-    const images = document.querySelectorAll('img[data-src]');
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.classList.remove('lazy');
-                imageObserver.unobserve(img);
-            }
-        });
-    });
-
-    images.forEach(img => imageObserver.observe(img));
 }
 
 // Format user data for WhatsApp message
@@ -437,7 +572,9 @@ function formatWhatsAppMessage(data) {
         'investment-plans': 'Investment Plans',
         'consultation': 'General Consultation'
     };
-    message += `Service: ${interestMap[data.interest] || data.interest}\n`; if (data.income) {
+    message += `Service: ${interestMap[data.interest] || data.interest}\n`;
+
+    if (data.income) {
         const incomeMap = {
             'below-3': 'Below ₹3 Lakhs',
             '3-5': '₹3-5 Lakhs',
@@ -467,3 +604,57 @@ console.log(`
     'color: #f59e0b; font-size: 12px;',
     'color: #6b7280; font-size: 10px;'
 );
+
+// Add CSS animation class
+if (typeof document !== 'undefined') {
+    const style = document.createElement('style');
+    style.textContent = `
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .loaded {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        img[data-src] {
+            opacity: 0;
+        }
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        .sr-only:focus {
+            position: static;
+            width: auto;
+            height: auto;
+            padding: 0.5rem;
+            margin: 0;
+            overflow: visible;
+            clip: auto;
+            white-space: normal;
+        }
+    `;
+    document.head.appendChild(style);
+}

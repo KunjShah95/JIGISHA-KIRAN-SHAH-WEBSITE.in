@@ -1,0 +1,90 @@
+# Security Headers
+<IfModule mod_headers.c>
+# Prevent clickjacking
+Header always set X-Frame-Options "DENY"
+    
+# XSS Protection
+Header always set X-XSS-Protection "1; mode=block"
+    
+# Prevent MIME type sniffing
+Header always set X-Content-Type-Options "nosniff"
+    
+# Referrer Policy
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+# Content Security Policy
+Header always set Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://wa.me https://api.whatsapp.com;"
+    
+# HSTS (if using HTTPS)
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    
+# Permissions Policy
+Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# Force HTTPS (if SSL is available)
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond % { HTTPS } off
+RewriteRule ^(.*)$ https://% { HTTP_HOST }% { REQUEST_URI } [L, R=301]
+</IfModule>
+
+# Gzip Compression
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/plain
+AddOutputFilterByType DEFLATE text/html
+AddOutputFilterByType DEFLATE text/xml
+AddOutputFilterByType DEFLATE text/css
+AddOutputFilterByType DEFLATE application/xml
+AddOutputFilterByType DEFLATE application/xhtml+xml
+AddOutputFilterByType DEFLATE application/rss+xml
+AddOutputFilterByType DEFLATE application/javascript
+AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# Browser Caching
+<IfModule mod_expires.c>
+ExpiresActive On
+    
+# Images
+ExpiresByType image/jpg "access plus 1 month"
+ExpiresByType image/jpeg "access plus 1 month"
+ExpiresByType image/gif "access plus 1 month"
+ExpiresByType image/png "access plus 1 month"
+ExpiresByType image/webp "access plus 1 month"
+    
+# CSS and JavaScript
+ExpiresByType text/css "access plus 1 month"
+ExpiresByType application/pdf "access plus 1 month"
+ExpiresByType application/javascript "access plus 1 month"
+ExpiresByType application/x-javascript "access plus 1 month"
+    
+# Fonts
+ExpiresByType application/x-font-woff "access plus 1 year"
+ExpiresByType application/font-woff2 "access plus 1 year"
+    
+# HTML
+ExpiresByType text/html "access plus 1 hour"
+</IfModule>
+
+# Hide sensitive files
+<Files ".htaccess">
+Order allow, deny
+Deny from all
+</Files>
+
+<Files "README.md">
+Order allow, deny
+Deny from all
+</Files>
+
+# Block access to configuration files
+<FilesMatch "\.(env|conf|config)$">
+Order allow, deny
+Deny from all
+</FilesMatch>
+
+# Custom Error Pages
+ErrorDocument 404 /index.html
+ErrorDocument 403 /index.html
+ErrorDocument 500 /index.html
