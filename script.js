@@ -192,39 +192,22 @@ document.addEventListener('DOMContentLoaded', function () {
             submitBtn.disabled = true;
             submitBtn.setAttribute('aria-busy', 'true');
 
-            // Generate CSRF token to prevent cross-site request forgery
-            const csrfToken = Math.random().toString(36).substring(2, 15);
-            sessionStorage.setItem('csrf_token', csrfToken);
-
-            // Use secure approach to send data directly to WhatsApp
+            // Use direct approach to send data to WhatsApp
             setTimeout(() => {
                 try {
-                    // Generate a secure encryption key
-                    const encryptionKey = generateEncryptionKey();
-
                     // Format the complete message with all details
                     const whatsappMessage = formatWhatsAppMessage(data);
 
-                    // Encrypt the message for security during transmission
-                    // This ensures data is only readable by the recipient
-                    const secureMessage = encryptData(whatsappMessage, encryptionKey);
-
-                    // Add a prefix to indicate this is an encrypted message
-                    // The actual message will be decrypted when you view it in WhatsApp
-                    const prefixMessage = "🔒 Secure Insurance Inquiry";
-
-                    // Create the WhatsApp URL with the direct contact number and encrypted message
+                    // Create the WhatsApp URL with the direct contact number and message
                     const whatsappNumber = '+919824025435';
-                    // In production, use the secureMessage to ensure data is encrypted
-                    // For easy readability by the recipient, we're using the formatted message directly
-                    // You can switch to secureMessage if stronger encryption is needed
-                    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(prefixMessage + "\n\n" + whatsappMessage)}`;
+                    // Simple direct WhatsApp message without encryption
+                    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
-                    // Log the secure data to verify encryption works
-                    console.log("Data being securely sent to WhatsApp (encrypted form):", secureMessage);
+                    // Log the data being sent
+                    console.log("Data being sent to WhatsApp:", whatsappMessage);
 
                     // Show success message and redirect
-                    showNotification('Thank you! Your details are being securely sent to Jigisha Shah via WhatsApp for a personalized quotation.', 'success');
+                    showNotification('Thank you! Your details are being sent to Jigisha Shah via WhatsApp for a personalized quotation.', 'success');
 
                     // Reset form and button
                     this.reset();
@@ -246,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }, 1000);
                 } catch (error) {
                     console.error('Error processing form:', error);
-                    showNotification('There was an error processing your request. Please try again or call directly.', 'error');
+                    showNotification('Unable to process your request. Please try again or call Jigisha Shah directly.', 'error');
 
                     // Reset button state
                     submitBtn.innerHTML = originalText;
@@ -370,36 +353,6 @@ function sanitizeInput(input) {
         .replace(/javascript:/gi, '') // Remove javascript protocol
         .replace(/on\w+=/gi, '') // Remove event handlers
         .substring(0, 1000); // Limit input length
-}
-
-// Simple encryption for data protection
-function encryptData(data, key) {
-    // This is an enhanced XOR encryption with multiple passes
-    // For production-level security, consider using a proper encryption library like CryptoJS
-    let encrypted = '';
-
-    // First pass: XOR with key
-    for (let i = 0; i < data.length; i++) {
-        encrypted += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-    }
-
-    // Second pass: Add another layer of obfuscation by shifting characters
-    let secondPass = '';
-    for (let i = 0; i < encrypted.length; i++) {
-        const charCode = encrypted.charCodeAt(i);
-        secondPass += String.fromCharCode((charCode + 7) % 65536); // Simple shift with wrap-around
-    }
-
-    // Final pass: Base64 encode for safe transmission
-    return btoa(secondPass);
-}
-
-// Generate a more complex key based on the current session, timestamp and a salt
-function generateEncryptionKey() {
-    const timestamp = new Date().getTime().toString();
-    const randomStr = Math.random().toString(36).substring(2, 15);
-    const salt = "JigishaLIC"; // Add a salt for additional security
-    return timestamp + randomStr + salt;
 }
 
 // Enhanced notification system
