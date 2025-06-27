@@ -73,6 +73,9 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
     <script src="tailwind.config.js"></script>
 
+    <!-- Custom CSS (placed after Tailwind to override if needed) -->
+    <link rel="stylesheet" href="styles.css">
+
     <!-- Structured Data (JSON-LD) for SEO -->
     <script type="application/ld+json">
     {
@@ -192,9 +195,6 @@
         ]
     }
     </script>
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body class="font-sans bg-gray-50 text-gray-900">
@@ -785,6 +785,17 @@
                                             380009</p>
                                     </div>
                                 </div>
+                                <!-- Online Meeting Availability -->
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-video text-primary-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900">Online Meetings</p>
+                                        <p class="text-gray-600">We are available for online meetings on Zoom and Google
+                                            Meet</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -841,7 +852,8 @@
                         </div>
                         <div class="bg-green-50 border-l-4 border-green-500 p-3 mb-4 rounded flex items-center">
                             <i class="fas fa-lock text-green-600 mr-2"></i>
-                            <span class="text-sm text-gray-700">Your data is encrypted and sent directly to WhatsApp</span>
+                            <span class="text-sm text-gray-700">Your data is encrypted and sent directly to
+                                WhatsApp</span>
                         </div>
                         <form id="contactForm" class="space-y-6">
                             <div>
@@ -917,99 +929,127 @@
     <section id="security" class="py-12 bg-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-8">
-                <span class="inline-block bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">Data Security</span>
-                <h2 class="text-3xl lg:text-4xl font-playfair font-bold text-gray-900 mb-6">Your Information is Secure with Us</h2>
+                <span
+                    class="inline-block bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">Data
+                    Security</span>
+                <h2 class="text-3xl lg:text-4xl font-playfair font-bold text-gray-900 mb-6">Your Information is Secure
+                    with Us</h2>
                 <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                    We prioritize the security and privacy of your personal information with industry-standard encryption and direct transmission.
+                    We prioritize the security and privacy of your personal information with industry-standard
+                    encryption and direct transmission.
                 </p>
             </div>
 
             <div class="grid md:grid-cols-4 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300" data-aos="fade-up">
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                    data-aos="fade-up">
                     <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Encryption</h3>
-                    <p class="text-gray-600">Your form data is encrypted using a multi-pass encryption algorithm before transmission, ensuring your information remains protected.</p>
+                    <p class="text-gray-600">Your form data is encrypted using a multi-pass encryption algorithm before
+                        transmission, ensuring your information remains protected.</p>
                 </div>
-                
-                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
+
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                    data-aos="fade-up" data-aos-delay="100">
                     <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-user-shield text-green-600 text-xl"></i>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Direct Transmission</h3>
-                    <p class="text-gray-600">Your information is sent directly to Jigisha Shah via WhatsApp without being stored on any third-party servers or databases.</p>
+                    <p class="text-gray-600">Your information is sent directly to Jigisha Shah via WhatsApp without
+                        being stored on any third-party servers or databases.</p>
                 </div>
-                
-                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
+
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                    data-aos="fade-up" data-aos-delay="200">
                     <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-fingerprint text-purple-600 text-xl"></i>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Input Sanitization</h3>
-                    <p class="text-gray-600">All form inputs are sanitized to prevent cross-site scripting (XSS) attacks and other security vulnerabilities.</p>
+                    <p class="text-gray-600">All form inputs are sanitized to prevent cross-site scripting (XSS) attacks
+                        and other security vulnerabilities.</p>
                 </div>
-                
-                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300" data-aos="fade-up" data-aos-delay="300">
+
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
+                    data-aos="fade-up" data-aos-delay="300">
                     <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-lock text-yellow-600 text-xl"></i>
                     </div>
                     <h3 class="text-lg font-bold text-gray-900 mb-2">Personal Privacy</h3>
-                    <p class="text-gray-600">We don't store cookies or use third-party tracking. Your data is used solely for providing insurance consultation services.</p>
+                    <p class="text-gray-600">We don't store cookies or use third-party tracking. Your data is used
+                        solely for providing insurance consultation services.</p>
                 </div>
             </div>
-            
+
             <!-- Data Protection Process -->
             <div class="mt-12 bg-white p-8 rounded-xl shadow-sm">
                 <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">How We Protect Your Data</h3>
-                
+
                 <div class="relative">
                     <div class="absolute h-full w-0.5 bg-gray-200 left-6 top-0 md:left-1/2"></div>
-                    
+
                     <div class="relative z-10 mb-10 md:flex items-center">
                         <div class="md:w-1/2 mb-6 md:mb-0 md:pr-8 text-right hidden md:block">
                             <h4 class="text-lg font-semibold text-gray-900">Form Submission</h4>
-                            <p class="text-gray-600 mt-2">Your information is first validated to ensure all required fields are complete and in the correct format.</p>
+                            <p class="text-gray-600 mt-2">Your information is first validated to ensure all required
+                                fields are complete and in the correct format.</p>
                         </div>
-                        <div class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary-600 bg-white text-primary-600 font-bold md:mx-auto">1</div>
+                        <div
+                            class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary-600 bg-white text-primary-600 font-bold md:mx-auto">
+                            1</div>
                         <div class="md:w-1/2 md:pl-8 md:hidden">
                             <h4 class="text-lg font-semibold text-gray-900">Form Submission</h4>
-                            <p class="text-gray-600 mt-2">Your information is first validated to ensure all required fields are complete and in the correct format.</p>
+                            <p class="text-gray-600 mt-2">Your information is first validated to ensure all required
+                                fields are complete and in the correct format.</p>
                         </div>
                     </div>
-                    
+
                     <div class="relative z-10 mb-10 md:flex items-center">
                         <div class="md:w-1/2 mb-6 md:mb-0 md:pr-8 text-right md:block hidden">
                             <h4 class="text-lg font-semibold text-gray-900">Data Encryption</h4>
-                            <p class="text-gray-600 mt-2">Your information is encrypted using multiple security layers to protect it during transmission.</p>
+                            <p class="text-gray-600 mt-2">Your information is encrypted using multiple security layers
+                                to protect it during transmission.</p>
                         </div>
-                        <div class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary-600 bg-white text-primary-600 font-bold md:mx-auto">2</div>
+                        <div
+                            class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary-600 bg-white text-primary-600 font-bold md:mx-auto">
+                            2</div>
                         <div class="md:w-1/2 md:pl-8 md:hidden">
                             <h4 class="text-lg font-semibold text-gray-900">Data Encryption</h4>
-                            <p class="text-gray-600 mt-2">Your information is encrypted using multiple security layers to protect it during transmission.</p>
+                            <p class="text-gray-600 mt-2">Your information is encrypted using multiple security layers
+                                to protect it during transmission.</p>
                         </div>
                     </div>
-                    
+
                     <div class="relative z-10 mb-10 md:flex items-center">
                         <div class="md:w-1/2 mb-6 md:mb-0 md:pr-8 text-right hidden md:block">
                             <h4 class="text-lg font-semibold text-gray-900">WhatsApp Integration</h4>
-                            <p class="text-gray-600 mt-2">Your encrypted information is formatted into a secure message and sent directly to Jigisha Shah's WhatsApp.</p>
+                            <p class="text-gray-600 mt-2">Your encrypted information is formatted into a secure message
+                                and sent directly to Jigisha Shah's WhatsApp.</p>
                         </div>
-                        <div class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary-600 bg-white text-primary-600 font-bold md:mx-auto">3</div>
+                        <div
+                            class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary-600 bg-white text-primary-600 font-bold md:mx-auto">
+                            3</div>
                         <div class="md:w-1/2 md:pl-8 md:hidden">
                             <h4 class="text-lg font-semibold text-gray-900">WhatsApp Integration</h4>
-                            <p class="text-gray-600 mt-2">Your encrypted information is formatted into a secure message and sent directly to Jigisha Shah's WhatsApp.</p>
+                            <p class="text-gray-600 mt-2">Your encrypted information is formatted into a secure message
+                                and sent directly to Jigisha Shah's WhatsApp.</p>
                         </div>
                     </div>
-                    
+
                     <div class="relative z-10 md:flex items-center">
                         <div class="md:w-1/2 mb-6 md:mb-0 md:pr-8 text-right hidden md:block">
                             <h4 class="text-lg font-semibold text-gray-900">Personalized Response</h4>
-                            <p class="text-gray-600 mt-2">Jigisha Shah will review your information and provide a personalized insurance quotation based on your specific needs.</p>
+                            <p class="text-gray-600 mt-2">Jigisha Shah will review your information and provide a
+                                personalized insurance quotation based on your specific needs.</p>
                         </div>
-                        <div class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary-600 bg-white text-primary-600 font-bold md:mx-auto">4</div>
+                        <div
+                            class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-primary-600 bg-white text-primary-600 font-bold md:mx-auto">
+                            4</div>
                         <div class="md:w-1/2 md:pl-8 md:hidden">
                             <h4 class="text-lg font-semibold text-gray-900">Personalized Response</h4>
-                            <p class="text-gray-600 mt-2">Jigisha Shah will review your information and provide a personalized insurance quotation based on your specific needs.</p>
+                            <p class="text-gray-600 mt-2">Jigisha Shah will review your information and provide a
+                                personalized insurance quotation based on your specific needs.</p>
                         </div>
                     </div>
                 </div>
@@ -1060,7 +1100,8 @@
                         </li>
                         <li><a href="#testimonials" class="text-gray-400 hover:text-white transition-colors">Reviews</a>
                         </li>
-                        <li><a href="#security" class="text-gray-400 hover:text-white transition-colors">Security</a></li>
+                        <li><a href="#security" class="text-gray-400 hover:text-white transition-colors">Security</a>
+                        </li>
                         <li><a href="#contact" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
                     </ul>
                 </div>
